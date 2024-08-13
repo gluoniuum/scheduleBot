@@ -117,27 +117,43 @@ def toDay():
     current_time = int(datetime.now().weekday()) 
     today_schedule = intToDay[current_time]
     today_lesson = intToWeekDay[current_time]
-    nextLesson(today_lesson)
+    
     
     return today_schedule
 
-def nextLesson(lesson):
+def nextLesson():
     current_time = str(datetime.now().strftime('%H.%M'))
     int_time = current_time.replace(".", "")
     int_time = int(int_time)
 
     for number in range(1,6):
+        current_time = int(datetime.now().weekday()) 
+        today_schedule = intToDay[current_time]
+        lesson = intToWeekDay[current_time]
+
         scheduleTime_num = scheduleTime[number]
-        
         scheduleTime_num = scheduleTime_num.replace(".", "")
         scheduleTime_num = int(scheduleTime_num)
+
+       
         if int_time <= scheduleTime_num:
             print(scheduleTime[number])
             global f_next_lesson
             f_next_lesson = f' {scheduleTime[number]} : {lesson[number]}'
+            
         else:
             f_next_lesson = 'No lessons today'
-            
+        return ''
+
+def lessons_and_time():
+    current_time = int(datetime.now().weekday())
+    lesson = intToWeekDay[current_time]
+    allWeek_schedule = ''
+    for number in range(1,7):
+        time = scheduleTime[number]
+        week_schedule = f'{time} : {lesson[number]}'
+        allWeek_schedule += f'\n{week_schedule}'  
+    return allWeek_schedule.strip()
 
 @dp.message(Command('start'))
 async def start(message: Message):
@@ -197,11 +213,21 @@ async def handle_inline_query(inline_query: InlineQuery):
         cache_time = 1,
         is_personal = 1,
         input_message_content = InputTextMessageContent(
-            message_text = f'''<b>Next Lesson:</b>
+            message_text = f'''<b>Next Lesson:</b> {nextLesson()}
 {f_next_lesson}''' 
         ) 
     )
-    await bot.answer_inline_query(inline_query.id, results=[result,result2, result3, result4, result5])
+    result6 = InlineQueryResultArticle(
+        id = 'unique_result_id_213',  
+        title ='ring:lesson'  ,
+        cache_time = 1,
+        is_personal = 1,
+        input_message_content = InputTextMessageContent(
+            message_text = f'''<b>Schedule:</b>
+{lessons_and_time()}''' 
+        ) 
+    )
+    await bot.answer_inline_query(inline_query.id, results=[result,result2, result3, result4, result5, result6])
     
 
 
