@@ -63,6 +63,7 @@ f_wednesday = '\n'.join(f'{key}: {value}' for key, value in wednesday.items())
 f_thursday = '\n'.join(f'{key}: {value}' for key, value in thursday.items())
 f_friday = '\n'.join(f'{key}: {value}' for key, value in friday.items())
 
+f_next_lesson = None
 
 intToDay ={
     0: f_monday,
@@ -71,6 +72,13 @@ intToDay ={
     3: f_thursday,
     4: f_friday,}
 
+intToWeekDay ={
+    0: monday,
+    1: tuesday,
+    2: wednesday,
+    3: thursday,
+    4: friday,}
+
 scheduleTime ={
     1: '8.30',
     2: '9.20',
@@ -78,6 +86,7 @@ scheduleTime ={
     4: '11.30',
     5: '12.25',
     6: '13.20',
+
 }
 f_scheduleTime = '\n'.join(f'{key}: {value}' for key, value in scheduleTime.items())
 
@@ -92,7 +101,7 @@ daysWeek ={
 
 def allWeek():
     allWeek_schedule = ''
-    for number in range(0, 4):  
+    for number in range(0, 5):  
         week_schedule = intToDay[number]
         allWeek_schedule = f'''{allWeek_schedule} 
 <b>{daysWeek[number] }</b>
@@ -107,18 +116,34 @@ def afterDay():
 def toDay():
     current_time = int(datetime.now().weekday()) 
     today_schedule = intToDay[current_time]
-    return today_schedule
+    today_lesson = intToWeekDay[current_time]
+    nextLesson(today_lesson)
     
+    return today_schedule
 
+def nextLesson(lesson):
+    current_time = str(datetime.now().strftime('%H.%M'))
+    int_time = current_time.replace(".", "")
+    int_time = int(int_time)
 
-
-
+    for number in range(1,6):
+        scheduleTime_num = scheduleTime[number]
+        
+        scheduleTime_num = scheduleTime_num.replace(".", "")
+        scheduleTime_num = int(scheduleTime_num)
+        if int_time <= scheduleTime_num:
+            print(scheduleTime[number])
+            global f_next_lesson
+            f_next_lesson = f' {scheduleTime[number]} : {lesson[number]}'
+        else:
+            f_next_lesson = 'No lessons today'
+            
 
 @dp.message(Command('start'))
 async def start(message: Message):
     await message.answer(f'yay_ {message.from_user.first_name}, це бот для розкладу')
 
-###?    
+#######################################################################################?    
 
 @router.inline_query()
 async def handle_inline_query(inline_query: InlineQuery):
@@ -127,8 +152,8 @@ async def handle_inline_query(inline_query: InlineQuery):
     result = InlineQueryResultArticle(
         id = 'unique_result_id_120',  
         title = 'Schedule for a Week'  ,
-        cache_time = 14400,
-        is_personal = 14400,
+        cache_time = 1,
+        is_personal = 1,
         input_message_content = InputTextMessageContent(
             message_text = f'''{allWeek()}'''
 
@@ -137,8 +162,8 @@ async def handle_inline_query(inline_query: InlineQuery):
     result2 = InlineQueryResultArticle(
         id = 'unique_result_id_119',  
         title = ('Tomorrow Schedule')  ,
-        cache_time = 14400,
-        is_personal = 14400,
+        cache_time = 1,
+        is_personal = 1,
         input_message_content = InputTextMessageContent(
             message_text = f'''<b>Tomorrow: </b>
 {afterDay()}'''
@@ -149,8 +174,8 @@ async def handle_inline_query(inline_query: InlineQuery):
     result3 = InlineQueryResultArticle(
         id = 'unique_result_id_125',  
         title ='Today schedule '  ,
-        cache_time = 14400,
-        is_personal = 14400,
+        cache_time = 1,
+        is_personal = 1,
         input_message_content = InputTextMessageContent(
             message_text = f'''<b>Today:</b>
 {toDay()}''' 
@@ -159,16 +184,24 @@ async def handle_inline_query(inline_query: InlineQuery):
     result4 = InlineQueryResultArticle(
         id = 'unique_result_id_151',  
         title ='Time schedule '  ,
-        cache_time = 14400,
-        is_personal = 14400,
+        cache_time = 1,
+        is_personal = 1,
         input_message_content = InputTextMessageContent(
             message_text = f'''<b>Rings:</b>
-
-
 {f_scheduleTime}''' 
         ) 
     )
-    await bot.answer_inline_query(inline_query.id, results=[result,result2, result3, result4])
+    result5 = InlineQueryResultArticle(
+        id = 'unique_result_id_251',  
+        title ='Next lesson '  ,
+        cache_time = 1,
+        is_personal = 1,
+        input_message_content = InputTextMessageContent(
+            message_text = f'''<b>Next Lesson:</b>
+{f_next_lesson}''' 
+        ) 
+    )
+    await bot.answer_inline_query(inline_query.id, results=[result,result2, result3, result4, result5])
     
 
 
