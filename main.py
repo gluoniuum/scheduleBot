@@ -6,7 +6,7 @@ from aiogram import types
 from datetime import datetime
 from aiogram.client.bot import DefaultBotProperties
 # Замените токен на токен вашего бота
-API_TOKEN = '7093731816:AAF-qmPKyI3Rd3oaC4yZkiP0ejwIMMfgDmk'
+API_TOKEN = ''
 
 bot = Bot(token=API_TOKEN,default=DefaultBotProperties(parse_mode='HTML'))
 dp = Dispatcher()
